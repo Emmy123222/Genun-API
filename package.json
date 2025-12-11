@@ -1,7 +1,7 @@
 {
-  "name": "poos-api",
+  "name": "-api",
   "version": "1.0.0",
-  "description": "This is the backend for the prrof of originality project",
+  "description": "This is the backend for Genun",
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
