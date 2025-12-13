@@ -26,11 +26,7 @@ app.use(cors({
         'http://localhost:3000', 
         'http://localhost:3001', 
         'http://localhost:3002', 
-        'https://genuns.netlify.app',
-        'https://genun-frontend.vercel.app',
-        'https://genun-frontend.netlify.app',
-        'https://genun.vercel.app',
-        'https://genun.netlify.app'
+        'https://genuns.netlify.app'
     ],
     allowedHeaders: ['Content-Type', 'x-auth-token'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
