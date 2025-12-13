@@ -1,5 +1,5 @@
-# Genun-API
-This is the backend of Genun
+# POos-api
+This is the backend of the proof of originality project
 
 
 ## Table of Contents
@@ -12,7 +12,7 @@ This is the backend of Genun
 
 
 ## Project Description
-This is the  API side of the Genun-system that provides authenticity and verification to products created by manufacturers from diverese sector.
+This is the  API side of the PoOs system that provides authenticity and verification to products created by manufacturers from diverese sector.
 
 ## Features
 List of key features or functionalities of the API.
@@ -24,7 +24,7 @@ List of key features or functionalities of the API.
 ## Installation
 Clone the repository.
 
-```git clone git@github.com:Genun-System/Genun-API.git```
+```git clone https://github.com/Arbitrum-Hack/PoOs-api.git```
 
 Install dependencies using
 ```npm install```

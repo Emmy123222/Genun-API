@@ -1,3 +1,4 @@
+// Import Manufacturer model directly
 const User = require('../models/manufacturer');
 
 const bcrypt = require('bcrypt');
@@ -9,7 +10,14 @@ const conFig = require('../configure');
 exports.LoginUser = async (req, res, next) => {
     try {
         const email = req.body.email;
+
+        console.log("Email --> ", email)
+        const users = await User.find()
+
+        console.log("Users --> ", users)
         const user = await User.findOne({ email: email });
+
+        console.log("User --> ", user)
 
         if (!user) {
             return res.status(400).json({ message: 'Invalid email or password' });

@@ -3,51 +3,48 @@ const Schema = mongoose.Schema;
 
 const ManufacturerSchema = new Schema({
     name: {
-        type: 'string',
+        type: String,
         required: true,
-        
     },
     email: {
-        type: 'string',
+        type: String,
         required: true,
         unique: true,
     },
     password: {
-        type: 'string',
+        type: String,
         required: true,
         maxLength: 1024,
     },
     industry: {
-        type: 'string',
+        type: String,
         required: true,
     },
     address: {
-        type: 'string',
+        type: String,
         required: true,
     },
-    
     isEmailVerified: {
-        type: 'boolean',
+        type: Boolean,
         default: false,
     },
     contractAddress: {
-        type: 'string',
+        type: String,
         required: false,
     },
     isFirstTimeLogin: {
-        type: 'boolean',
+        type: Boolean,
         default: true,
     },
     products: [{
         type: Schema.Types.ObjectId,
         ref: 'Product',
     }],
-
     idNumber: {
-        type: 'string',
+        type: String,
         required: true,
     }
 
 }, { timestamps: true });
 
-module.exports = mongoose.model('Manufacturer', ManufacturerSchema);
+module.exports = mongoose.model('Manufacturers', ManufacturerSchema);

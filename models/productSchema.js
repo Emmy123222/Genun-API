@@ -39,7 +39,7 @@ const ProductSchema = new Schema({
     },
     manufacturer: {
         type: Schema.Types.ObjectId,
-        ref: 'Manufacturer',
+        ref: 'Manufacturers',
         required: true
     },
     imageUrl: {

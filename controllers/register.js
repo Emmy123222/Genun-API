@@ -1,15 +1,11 @@
 const _ = require('lodash');
 
+// Import Manufacturer model directly
 const User = require('../models/manufacturer');
 
-const config = require('config');
-
 const bcrypt = require('bcrypt');
-
 const jwt = require('jsonwebtoken');
-
 const nodemailer = require('nodemailer');
-
 const conFig = require('../configure');
 
 exports.createUser = async (req, res, next) => {
@@ -69,26 +65,42 @@ exports.verifyEmailWithToken = async (req, res) => {
 }
 
 
-exports.getUser = (req, res, next) => {
+exports.getUser = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
 
-    const userId = req.user.userId;
+        const user = await User.findById(userId);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-    User.findById(userId)
-        .then(user => {
-            const pickedUser = _.pick(user, ['_id', 'name', 'email', 'industry', 'address', 'idNumber', 'contractAddress', "isFirstTimeLogin"])
-            return res.status(200).json({ message: 'User fetched successfully', user: pickedUser })
-        })
-        .catch(err => {
-            if (!err.statusCode) {
-                err.statusCode = 500;
-            }
-            next(err)
-        })
-}
+        const pickedUser = _.pick(user, [
+            '_id', 'name', 'email', 'industry', 
+            'address', 'idNumber', 'contractAddress', 
+            'isFirstTimeLogin', 'isEmailVerified'
+        ]);
+        
+        res.status(200).json({ 
+            message: 'User fetched successfully', 
+            user: pickedUser 
+        });
+    } catch (error) {
+        console.error('Error in getUser:', error);
+        const status = error.statusCode || 500;
+        const message = error.message || 'Internal server error';
+        res.status(status).json({ message });
+    }
+};
 
 
 exports.sendMailToUser = async (req, res, next) => {
-    const email = req.body.email;
+    try {
+        const email = req.body.email;
     const user = await User.findOne({ email: email });
 
     if (!user) {
@@ -101,34 +113,82 @@ exports.sendMailToUser = async (req, res, next) => {
         { expiresIn: '1h' }
     );
 
-    const loginLink = `https://p-oos-frontend.vercel.app/signup/verify-account/${token}`;
+    // Use configured frontend URL (defaults to localhost for development)
+    const loginLink = `${conFig.frontendUrl}/signup/verify-account/${token}`;
 
+    // Gmail configuration with App Password and better settings
     const transporter = nodemailer.createTransport({
-
         service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
         auth: {
             user: conFig.hostMailAddress,
             pass: conFig.hostPass,
         },
-        debug: true
-
+        tls: {
+            rejectUnauthorized: false
+        },
+        debug: true,
+        logger: true
     });
 
     const mailOptions = {
-        from: `"POosystem" <${conFig.hostMailAddress}>`,
+        from: `"POoS System" <${conFig.hostMailAddress}>`,
         to: user.email,
-        subject: 'POos Email Verification Link',
-        text: `This is your email verification link ${loginLink}`
+        subject: 'POoS Email Verification Link',
+        html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <h2 style="color: #235789;">Welcome to POoS System!</h2>
+                <p>Thank you for registering with our Proof of Originality System.</p>
+                <p>Please click the button below to verify your email address:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${loginLink}" 
+                       style="background-color: #235789; color: white; padding: 12px 30px; 
+                              text-decoration: none; border-radius: 5px; display: inline-block;">
+                        Verify Email Address
+                    </a>
+                </div>
+                <p>Or copy and paste this link in your browser:</p>
+                <p style="word-break: break-all; color: #666;">${loginLink}</p>
+                <p><strong>Note:</strong> This link will expire in 1 hour for security reasons.</p>
+                <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+                <p style="color: #666; font-size: 12px;">
+                    If you didn't create an account, please ignore this email.
+                </p>
+            </div>
+        `,
+        text: `Welcome to POoS System! Please verify your email by clicking this link: ${loginLink}`
     };
+
+    // Verify transporter configuration first
+    transporter.verify((error, success) => {
+        if (error) {
+            console.log('SMTP Configuration Error:', error);
+        } else {
+            console.log('SMTP Server is ready to take our messages');
+        }
+    });
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log(error);
+            console.log('❌ Email sending failed:', error);
+            console.log('Error code:', error.code);
+            console.log('Error response:', error.response);
+        } else {
+            console.log('✅ Email sent successfully!');
+            console.log('📧 Recipient:', user.email);
+            console.log('📨 Message ID:', info.messageId);
+            console.log('📤 Response:', info.response);
+            console.log('🔗 Preview URL:', nodemailer.getTestMessageUrl(info));
         }
-        console.log('Email sent: ' + info.response);
     });
 
     return res.status(200).json({ message: 'Email verification link sent to your email' });
+    } catch (error) {
+        console.error('Error in sendMailToUser:', error);
+        res.status(500).json({ message: 'Failed to send verification email' });
+    }
 };
 
 
@@ -176,6 +236,7 @@ exports.deleteUser = (req, res, next) => {
             if (!error.statusCode) {
                 error.statusCode = 500;
             }
+            next(error);
         })
 }
 
