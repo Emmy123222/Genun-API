@@ -51,7 +51,7 @@ Copy `.env.example` to `.env` and configure:
 
 ```bash
 # Database (MongoDB Atlas recommended)
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/genun-api
+MONGO_URI=enter
 
 # JWT Secret
 POos_jwtPrivateKey=your-super-secret-jwt-key
