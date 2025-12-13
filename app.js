@@ -22,15 +22,34 @@ app.use(bodyparser.json())
 const cors = require('cors');
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', "https://genuns.netlify.app", "https://genuns.netlify.app"],
-    allowedHeaders: ['Content-Type', 'x-auth-token']
+    origin: [
+        'http://localhost:3000', 
+        'http://localhost:3001', 
+        'http://localhost:3002', 
+        'https://genuns.netlify.app',
+        'https://genun-frontend.vercel.app',
+        'https://genun-frontend.netlify.app',
+        'https://genun.vercel.app',
+        'https://genun.netlify.app'
+    ],
+    allowedHeaders: ['Content-Type', 'x-auth-token'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    credentials: true
 }))
 
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST')
-    res.setHeader('Access-Control-Allow-Headers', 'content-type', 'authorization');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-auth-token, Authorization');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    
+    // Handle preflight requests
+    if (req.method === 'OPTIONS') {
+        res.status(200).end();
+        return;
+    }
+    
     next();
 })
 
@@ -57,6 +76,21 @@ app.use("/api/register-user", registerRoutes);
 app.use("/api/login", loginRoutes);
 
 app.use("/api/products", productRoutes);
+
+// Root endpoint
+app.get('/', (req, res) => {
+    res.status(200).json({ 
+        message: 'Genun API Server is running!',
+        version: '1.0.0',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            health: '/api/health',
+            login: '/api/login',
+            register: '/api/register-user',
+            products: '/api/products'
+        }
+    });
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
