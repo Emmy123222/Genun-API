@@ -15,7 +15,7 @@
   "author": "Eniwealth",
   "license": "ISC",
   "dependencies": {
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
     "body-parser": "^1.20.2",
     "bson-objectid": "^2.0.4",
     "cloudinary": "^2.0.3",

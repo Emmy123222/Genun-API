@@ -153,8 +153,9 @@ mongoose.connect(conFig.mongoUri.toString())
     const { loadModels } = require('./models/loader');
     loadModels();
     
-    app.listen(3002, () => {
-        console.log("Backend API successfully started on port 3002");
+    const PORT = process.env.PORT || 3002;
+    app.listen(PORT, () => {
+        console.log(`Backend API successfully started on port ${PORT}`);
         console.log("All models verified and ready for operations");
     });
 })
