@@ -162,29 +162,39 @@ exports.sendMailToUser = async (req, res, next) => {
     };
 
     // Verify transporter configuration first
-    transporter.verify((error, success) => {
-        if (error) {
-            console.log('SMTP Configuration Error:', error);
-        } else {
-            console.log('SMTP Server is ready to take our messages');
-        }
-    });
+    try {
+        await transporter.verify();
+        console.log('✅ SMTP Server is ready to take our messages');
+    } catch (verifyError) {
+        console.log('❌ SMTP Configuration Error:', verifyError);
+        return res.status(500).json({ 
+            message: 'Email service configuration error. Please contact support.',
+            error: verifyError.message 
+        });
+    }
 
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.log('❌ Email sending failed:', error);
-            console.log('Error code:', error.code);
-            console.log('Error response:', error.response);
-        } else {
-            console.log('✅ Email sent successfully!');
-            console.log('📧 Recipient:', user.email);
-            console.log('📨 Message ID:', info.messageId);
-            console.log('📤 Response:', info.response);
-            console.log('🔗 Preview URL:', nodemailer.getTestMessageUrl(info));
-        }
-    });
-
-    return res.status(200).json({ message: 'Email verification link sent to your email' });
+    // Send email and wait for result
+    try {
+        const info = await transporter.sendMail(mailOptions);
+        console.log('✅ Email sent successfully!');
+        console.log('📧 Recipient:', user.email);
+        console.log('📨 Message ID:', info.messageId);
+        console.log('📤 Response:', info.response);
+        
+        return res.status(200).json({ 
+            message: 'Email verification link sent to your email',
+            success: true 
+        });
+    } catch (emailError) {
+        console.log('❌ Email sending failed:', emailError);
+        console.log('Error code:', emailError.code);
+        console.log('Error response:', emailError.response);
+        
+        return res.status(500).json({ 
+            message: 'Failed to send verification email. Please try again or contact support.',
+            error: emailError.message 
+        });
+    }
     } catch (error) {
         console.error('Error in sendMailToUser:', error);
         res.status(500).json({ message: 'Failed to send verification email' });
