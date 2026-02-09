@@ -27,7 +27,8 @@ app.use(cors({
         'http://localhost:3001', 
         'http://localhost:3002', 
         'https://genuns.netlify.app',
-        'https://paranax.netlify.app'
+        'https://paranax.netlify.app',
+        'https://paranax.vercel.app'
     ],
     allowedHeaders: ['Content-Type', 'x-auth-token'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
